@@ -24,6 +24,14 @@ A docker-compose file is provided at the root of the repository to run the appli
 ```sh
 docker-compose up -d
 ```
+### Publish
+
+To publish all the container images to the GCP training registry, just run the following commands:
+```sh
+gcloud auth configure-docker europe-west1-docker.pkg.dev
+docker-compose -f docker-compose-push.yml build
+docker-compose -f docker-compose-push.yml push
+```
 
 ### Kubernetes
 

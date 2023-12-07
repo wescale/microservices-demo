@@ -10,6 +10,7 @@ services:
   api-cart:
     build:
       context: ./cart-service
+    image: europe-west1-docker.pkg.dev/wsc-kubernetes-training-0/microservices-demo/cart-service:latest
     environment:
       REDIS_URI: "redis://redis:6379"
     depends_on:
@@ -18,6 +19,7 @@ services:
   api-article:
     build:
       context: ./article-service
+    image: europe-west1-docker.pkg.dev/wsc-kubernetes-training-0/microservices-demo/article-service:latest
     environment:
       MONGODB_URI: "mongodb://mongo:27017"
     depends_on:
@@ -26,10 +28,12 @@ services:
   front-admin:
     build:
       context: ./front-admin
+    image: europe-west1-docker.pkg.dev/wsc-kubernetes-training-0/microservices-demo/frontend-admin:latest
 
   front-client:
     build:
       context: ./front-user
+    image: europe-west1-docker.pkg.dev/wsc-kubernetes-training-0/microservices-demo/frontend-user:latest
 
   ingress:
     image: nginx:1.19
