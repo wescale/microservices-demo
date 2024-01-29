@@ -1,6 +1,5 @@
-version: '3'
+version: "3"
 services:
-
   mongo:
     image: mongo:4
 
@@ -28,12 +27,12 @@ services:
   front-admin:
     build:
       context: ./front-admin
-    image: europe-west1-docker.pkg.dev/wsc-kubernetes-training-0/microservices-demo/frontend-admin:latest
+    image: europe-west1-docker.pkg.dev/wsc-kubernetes-training-0/microservices-demo/front-admin:latest
 
   front-client:
     build:
       context: ./front-user
-    image: europe-west1-docker.pkg.dev/wsc-kubernetes-training-0/microservices-demo/frontend-user:latest
+    image: europe-west1-docker.pkg.dev/wsc-kubernetes-training-0/microservices-demo/front-user:latest
 
   ingress:
     image: nginx:1.19
