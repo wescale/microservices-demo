@@ -10,10 +10,25 @@ This is a sample application that demonstrates a microservice architecture.
 The application is composed of the following microservices:
 - **[article-service](./article-service)**: Golang application that manages the articles.
   - Connected to a MongoDB database.
+    - GET /healthz
+    - GET /article/
+    - POST /article/
+    - DELETE /article/:articleId/
 - **[cart-service](./cart-service)**: Golang application that manages the shopping cart.
   - Connected to a Redis database.
+    - GET /healthz
+    - GET /cart/:cartId/
+    - PUT /cart/:cartId/
+    - DELETE /cart/:cartId/
 - **[User frontend](./front-user)**: Vuejs application that serves as the frontend.
-- **[Admin frontend](./front-admin)**: Vuejs application that serves as the admin frontend.
+  - GET /
+  - GET /shop
+  - GET /cart
+- **[Admin frontend](./front-admin)**: Vuejs application that serves as the admin 
+frontend.
+  - GET /
+  - GET /articles
+  - GET /about
 
 ## Run the application
 
