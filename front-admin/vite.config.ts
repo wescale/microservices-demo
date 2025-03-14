@@ -32,6 +32,9 @@ export default defineConfig({
     }),
   ],
   base: '',
+  build : {
+    target: 'esnext'
+  },
   define: {
     'process.env': {}
   },
