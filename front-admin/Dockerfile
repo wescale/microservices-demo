@@ -1,5 +1,5 @@
 # Build image
-FROM node:16-alpine as vue-build
+FROM node:23-alpine as vue-build
 WORKDIR /app
 
 # Install dependencies

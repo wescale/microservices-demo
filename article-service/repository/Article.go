@@ -3,9 +3,11 @@ package repository
 import (
 	"article-service/model"
 	"context"
+
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.opentelemetry.io/otel"
 )
 
 func collArticles() *mongo.Collection {
@@ -18,6 +20,9 @@ func GetArticles(ctx context.Context, filter bson.D) ([]*model.Article, error) {
 	if filter == nil {
 		filter = bson.D{}
 	}
+
+	ctx, span := otel.Tracer("article-service").Start(ctx, "GetArticles")
+	defer span.End()
 
 	cursor, err := collArticles().Find(ctx, filter)
 	if err != nil {
@@ -32,6 +37,10 @@ func GetArticles(ctx context.Context, filter bson.D) ([]*model.Article, error) {
 
 func AddArticle(ctx context.Context, article *model.Article) error {
 	article.ID = primitive.NewObjectID().Hex()
+
+	ctx, span := otel.Tracer("article-service").Start(ctx, "AddArticle")
+	defer span.End()
+
 	_, err := collArticles().InsertOne(ctx, article)
 	if err != nil {
 		return err
@@ -41,6 +50,9 @@ func AddArticle(ctx context.Context, article *model.Article) error {
 
 func DeleteArticle(ctx context.Context, articleId string) error {
 	var err error
+
+	ctx, span := otel.Tracer("article-service").Start(ctx, "DeleteArticle")
+	defer span.End()
 
 	objectId, err := primitive.ObjectIDFromHex(articleId)
 	if err != nil {

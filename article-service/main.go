@@ -3,17 +3,31 @@ package main
 import (
 	"article-service/handler"
 	"article-service/repository"
+	"context"
+	"os"
+	"time"
+
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
-	"time"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/exporters/otlp/otlptrace"
+	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp"
+	"go.opentelemetry.io/otel/propagation"
+	"go.opentelemetry.io/otel/sdk/resource"
+	"go.opentelemetry.io/otel/sdk/trace"
 )
 
 func main() {
 	log.Infoln("-= Article Service =-")
 	loadConfig()
 	initDatabase()
+	if os.Getenv("OTLP_ENDPOINT") != "" {
+		initTracer()
+	}
 	loadApiServer()
 }
 
@@ -42,6 +56,38 @@ func initDatabase() {
 	log.Infof("Connected to %s", mongodbUri)
 }
 
+func initTracer() func(context.Context) error {
+	exporter, err := otlptrace.New(
+		context.Background(),
+		otlptracehttp.NewClient(
+			otlptracehttp.WithEndpointURL(os.Getenv("OTLP_ENDPOINT")),
+		),
+	)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+	resources, err := resource.New(
+		context.Background(),
+		resource.WithAttributes(
+			attribute.String("service.name", "article-service"),
+			attribute.String("library.language", "go"),
+		),
+	)
+	if err != nil {
+		log.Printf("Could not set resources: ", err)
+	}
+
+	otel.SetTracerProvider(
+		trace.NewTracerProvider(
+			trace.WithBatcher(exporter),
+			trace.WithResource(resources),
+		),
+	)
+
+	return exporter.Shutdown
+}
+
 // loadApiServer initialize the API server with a cors middleware and define routes to be served.
 // This function is blocking: it will wait until the server returns an error
 func loadApiServer() {
@@ -58,9 +104,12 @@ func loadApiServer() {
 		MaxAge: 12 * time.Hour,
 	}))
 
+	otelginOption := otelgin.WithPropagators(propagation.TraceContext{})
+
 	Router.Use(
 		gin.LoggerWithWriter(gin.DefaultWriter, "/", "/healthz"),
 		gin.Recovery(),
+		otelgin.Middleware("article-service", otelginOption),
 	)
 
 	Router.GET("/", handler.HealthZ)

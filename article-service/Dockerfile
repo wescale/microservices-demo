@@ -1,5 +1,5 @@
 # Start from the latest golang base image for the build stage
-FROM golang:1.21.5 AS builder
+FROM golang:1.24.1 AS builder
 
 # Add Maintainer Info
 LABEL maintainer="Yann Ponzoni <yann.ponzoni@wescale.fr>"
